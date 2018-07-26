@@ -6,6 +6,7 @@ import com.almundo.callcenter.services.EmployeeFactory;
 import com.almundo.callcenter.services.TakeCall;
 import com.almundo.callcenter.util.EmployeeComparator;
 import com.almundo.callcenter.util.Priority;
+import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -17,15 +18,30 @@ import java.util.concurrent.*;
 @Slf4j
 public class CallCenterApp {
 
+    public int poolSize;
+    private int callQuantity;
+    private int operators;
+    private int supervisors;
+
+    public CallCenterApp() {
+        Dotenv env = Dotenv.configure()
+                .directory("./")
+                .load();
+        this.poolSize = Integer.parseInt(env.get("POOL_SIZE"));
+        this.callQuantity = Integer.parseInt(env.get("CALLS"));
+        this.operators = Integer.parseInt(env.get("OPERATORS"));
+        this.supervisors = Integer.parseInt(env.get("SUPERVISORS"));
+    }
+
     public static void main(String[] args) {
         log.info("START:CallCenterApp::main");
         CallCenterApp app = new CallCenterApp();
-        ExecutorService pool = Executors.newFixedThreadPool(100);
+        ExecutorService pool = Executors.newFixedThreadPool(app.poolSize);
 
         try {
             pool.invokeAll(app.generateCalls());
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.error(e.toString());
         }
         pool.shutdown();
         log.info("END:CallCenterApp::main");
@@ -36,7 +52,7 @@ public class CallCenterApp {
         Dispatcher dispatcher = new Dispatcher(this.generateEmployees());
         List<Callable<Employee>> pendingCalls = new ArrayList<>();
 
-        for (int i = 0; i < 50; i++)
+        for (int i = 0; i < this.callQuantity; i++)
             pendingCalls.add(new TakeCall(dispatcher));
 
         return pendingCalls;
@@ -48,10 +64,10 @@ public class CallCenterApp {
 
         employees.add(EmployeeFactory.get(Priority.DIRECTOR, "Director"));
 
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < this.supervisors; i++)
             employees.add(EmployeeFactory.get(Priority.SUPERVISOR, i + ".- Supervisor"));
 
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < this.operators; i++)
             employees.add(EmployeeFactory.get(Priority.OPERATOR, i + ".- Operator"));
 
         return employees;
