@@ -7,6 +7,8 @@ import com.almundo.callcenter.services.TakeCall;
 import com.almundo.callcenter.util.EmployeeComparator;
 import com.almundo.callcenter.util.Priority;
 import io.github.cdimascio.dotenv.Dotenv;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -18,9 +20,20 @@ import java.util.concurrent.*;
 @Slf4j
 public class CallCenterApp {
 
-    public int poolSize;
+    @Getter
+    @Setter
+    private int poolSize;
+
+    @Getter
+    @Setter
     private int callQuantity;
+
+    @Getter
+    @Setter
     private int operators;
+
+    @Getter
+    @Setter
     private int supervisors;
 
     public CallCenterApp() {
@@ -36,10 +49,10 @@ public class CallCenterApp {
     public static void main(String[] args) {
         log.info("START:CallCenterApp::main");
         CallCenterApp app = new CallCenterApp();
-        ExecutorService pool = Executors.newFixedThreadPool(app.poolSize);
+        ExecutorService pool = Executors.newFixedThreadPool(app.getPoolSize());
 
         try {
-            pool.invokeAll(app.generateCalls());
+            pool.invokeAll(app.generateCalls(app.getCallQuantity()));
         } catch (InterruptedException e) {
             log.error(e.toString());
         }
@@ -47,27 +60,27 @@ public class CallCenterApp {
         log.info("END:CallCenterApp::main");
     }
 
-    private List<Callable<Employee>> generateCalls() {
+    public List<Callable<Employee>> generateCalls(int callQuantity) {
         log.info("START:CallCenterApp::generateCalls");
         Dispatcher dispatcher = new Dispatcher(this.generateEmployees());
         List<Callable<Employee>> pendingCalls = new ArrayList<>();
 
-        for (int i = 0; i < this.callQuantity; i++)
+        for (int i = 0; i < callQuantity; i++)
             pendingCalls.add(new TakeCall(dispatcher));
 
         return pendingCalls;
     }
 
-    private PriorityBlockingQueue<Employee> generateEmployees() {
+    public PriorityBlockingQueue<Employee> generateEmployees() {
         log.info("START:CallCenterApp::generateEmployees");
         PriorityBlockingQueue<Employee> employees = new PriorityBlockingQueue<Employee>(6, new EmployeeComparator());
 
         employees.add(EmployeeFactory.get(Priority.DIRECTOR, "Director"));
 
-        for (int i = 0; i < this.supervisors; i++)
+        for (int i = 0; i < this.getSupervisors(); i++)
             employees.add(EmployeeFactory.get(Priority.SUPERVISOR, i + ".- Supervisor"));
 
-        for (int i = 0; i < this.operators; i++)
+        for (int i = 0; i < this.getOperators(); i++)
             employees.add(EmployeeFactory.get(Priority.OPERATOR, i + ".- Operator"));
 
         return employees;
