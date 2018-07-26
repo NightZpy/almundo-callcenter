@@ -4,7 +4,6 @@ import com.almundo.callcenter.domain.Employee;
 import com.almundo.callcenter.services.Dispatcher;
 import com.almundo.callcenter.services.EmployeeFactory;
 import com.almundo.callcenter.util.Priority;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.ArrayList;
@@ -27,9 +26,8 @@ public class CallcenterApplication {
         Dispatcher dispatcher = new Dispatcher(this.generateEmployees());
         List<Callable<Employee>> pendingCalls = new ArrayList<>();
 
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 50; i++)
             pendingCalls.add();
-        }
 
         return pendingCalls;
     }
@@ -40,7 +38,7 @@ public class CallcenterApplication {
         employees.add(EmployeeFactory.get(Priority.DIRECTOR, "Director"));
 
         for (int i = 0; i < 2; i++)
-            employees.add(EmployeeFactory.get(Priority.SUPERVISOR i + ".- Supervisor"));
+            employees.add(EmployeeFactory.get(Priority.SUPERVISOR, i + ".- Supervisor"));
 
         for (int i = 0; i < 3; i++)
             employees.add(EmployeeFactory.get(Priority.OPERATOR, i + ".- Operator"));
