@@ -2,18 +2,13 @@ package com.almundo.callcenter;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import com.almundo.callcenter.domain.Director;
-import com.almundo.callcenter.domain.Employee;
-import com.almundo.callcenter.domain.Operator;
-import com.almundo.callcenter.domain.Supervisor;
-import lombok.extern.slf4j.Slf4j;
+import com.almundo.callcenter.domain.*;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.*;
 
-@Slf4j
 public class CallCenterAppTests {
 
     private void turnOffLogger() {
